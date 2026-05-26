@@ -512,8 +512,8 @@
       },
     });
 
-    // 3. Stream network — drawn BEFORE waterbodies so lakes cover underlying streams
-    //    Color matches waterbody fill so stream→lake transitions are seamless
+    // 3. Stream network — drawn BEFORE waterbodies so lakes cover underlying streams.
+    //    Opacity is 1.0 so the waterbody fill (also 1.0) fully occludes them.
     map.addLayer({
       id: 'streams',
       type: 'line',
@@ -524,55 +524,31 @@
         'line-color': '#1e4870',
         'line-width': [
           'match', ['get', 'strahler'],
-          1, 0.5,
-          2, 1.0,
-          3, 1.6,
-          4, 2.6,
-          5, 4.0,
-          6, 5.5,
-          7, 7.0,
-          8, 9.5,
+          1, 0.5,  2, 1.0,  3, 1.6,  4, 2.6,
+          5, 4.0,  6, 5.5,  7, 7.0,  8, 9.5,
           0.5,
         ],
-        'line-opacity': [
-          'match', ['get', 'strahler'],
-          1, 0.40,
-          2, 0.55,
-          3, 0.70,
-          4, 0.82,
-          5, 0.92,
-          6, 0.97,
-          7, 1.0,
-          8, 1.0,
-          0.40,
-        ],
+        'line-opacity': 1.0,
       },
     });
 
-    // 4. Waterbodies fill (on top of streams — hides streams inside lakes)
+    // 4. Waterbodies fill — opacity 1.0 so it fully covers streams underneath
     map.addLayer({
       id: 'waterbodies-fill',
       type: 'fill',
       source: 'wb',
       'source-layer': 'waterbodies-d9gs9a',
-      paint: {
-        'fill-color': '#1e4870',
-        'fill-opacity': 0.75,
-      },
+      paint: { 'fill-color': '#1e4870', 'fill-opacity': 1.0 },
     });
     map.addLayer({
       id: 'waterbodies-line',
       type: 'line',
       source: 'wb',
       'source-layer': 'waterbodies-d9gs9a',
-      paint: {
-        'line-color': '#3a6e9a',
-        'line-width': 0.6,
-        'line-opacity': 0.8,
-      },
+      paint: { 'line-color': '#3a6e9a', 'line-width': 0.6, 'line-opacity': 1.0 },
     });
 
-    // 5. Named waterways (OSM) — rivers and streams with names
+    // 5. Named waterways (OSM)
     map.addLayer({
       id: 'waterways',
       type: 'line',
@@ -582,25 +558,46 @@
       paint: {
         'line-color': '#1e4870',
         'line-width': ['match', ['get', 'waterway'], 'river', 2.5, 1.2],
-        'line-opacity': 0.8,
+        'line-opacity': 1.0,
       },
     });
+
+    // 5a. River name labels — Open Sans Bold Italic (large named water bodies)
+    map.addLayer({
+      id: 'river-labels',
+      type: 'symbol',
+      source: 'wwy',
+      'source-layer': 'waterways-3mgsb2',
+      filter: ['all', ['==', ['get', 'waterway'], 'river'], ['has', 'name']],
+      layout: {
+        'symbol-placement': 'line',
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold Italic', 'Arial Unicode MS Regular'],
+        'text-size': 13,
+        'text-offset': [0, -1.0],
+        'text-max-angle': 30,
+        'symbol-spacing': 300,
+        'text-allow-overlap': false,
+      },
+      paint: {
+        'text-color': '#000000',
+        'text-halo-color': 'rgba(255,255,255,0.88)',
+        'text-halo-width': 2.0,
+      },
+    });
+
+    // 5b. Stream/brook name labels — Open Sans Italic (smaller, same italic convention)
     map.addLayer({
       id: 'waterway-labels',
       type: 'symbol',
       source: 'wwy',
       'source-layer': 'waterways-3mgsb2',
-      filter: ['!=', ['get', 'name'], null],
+      filter: ['all', ['!=', ['get', 'waterway'], 'river'], ['has', 'name']],
       layout: {
         'symbol-placement': 'line',
         'text-field': ['get', 'name'],
-        // Rivers: Open Sans Bold Italic (larger, prominent)
-        // Streams/other: DIN Pro Italic (smaller, refined)
-        'text-font': ['match', ['get', 'waterway'],
-          'river', ['literal', ['Open Sans Bold Italic', 'Arial Unicode MS Regular']],
-          ['literal', ['DIN Pro Italic', 'Arial Unicode MS Regular']],
-        ],
-        'text-size': ['match', ['get', 'waterway'], 'river', 13, 10],
+        'text-font': ['Open Sans Italic', 'Arial Unicode MS Regular'],
+        'text-size': 10,
         'text-offset': [0, -0.9],
         'text-max-angle': 30,
         'symbol-spacing': 250,
@@ -608,12 +605,12 @@
       },
       paint: {
         'text-color': '#000000',
-        'text-halo-color': 'rgba(255,255,255,0.85)',
-        'text-halo-width': 1.8,
+        'text-halo-color': 'rgba(255,255,255,0.88)',
+        'text-halo-width': 1.6,
       },
     });
 
-    // 6. Roads — dark brown
+    // 6. Roads — dark brown, full opacity
     map.addLayer({
       id: 'roads',
       type: 'line',
@@ -623,21 +620,21 @@
       paint: {
         'line-color': [
           'match', ['get', 'highway'],
-          ['primary', 'secondary'],               '#4a2608',
+          ['primary', 'secondary'],                    '#4a2608',
           ['tertiary', 'unclassified', 'residential'], '#5e3210',
           '#6b3e18',
         ],
         'line-width': [
           'match', ['get', 'highway'],
-          ['primary', 'secondary'],               2.2,
+          ['primary', 'secondary'],                    2.2,
           ['tertiary', 'unclassified', 'residential'], 1.3,
           0.8,
         ],
-        'line-opacity': 0.9,
+        'line-opacity': 1.0,
       },
     });
 
-    // 7. Trails — dark brown dashed
+    // 7. Trails — dark brown dashed, full opacity
     map.addLayer({
       id: 'trails',
       type: 'line',
@@ -648,27 +645,24 @@
         'line-color': '#4a2608',
         'line-width': 1.3,
         'line-dasharray': [3, 2.5],
-        'line-opacity': 0.9,
+        'line-opacity': 1.0,
       },
     });
 
-    // 8. Town labels — bold upright (cartographic convention distinguishes
-    //    settlements from italic water features)
+    // 8. Town labels — Open Sans Bold, upright (cartographic convention:
+    //    bold upright for settlements vs italic for water features)
     map.addLayer({
       id: 'towns',
       type: 'symbol',
       source: 'twn',
       'source-layer': 'towns-977j02',
-      filter: ['!=', ['get', 'name'], null],
+      filter: ['has', 'name'],
       layout: {
         'text-field': ['get', 'name'],
-        'text-font': ['DIN Pro Bold', 'Arial Unicode MS Regular'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Regular'],
         'text-size': [
           'match', ['get', 'place'],
-          'city',        15,
-          'town',        13,
-          'village',     11,
-          'hamlet',      10,
+          'city', 15,  'town', 13,  'village', 11,  'hamlet', 10,
           10,
         ],
         'text-anchor': 'top',
@@ -684,14 +678,13 @@
       },
     });
 
-    // 9. Waterbody labels (NHD gnis_name) — Open Sans Italic, centered on polygon
-    //    Bold italic for larger lakes, regular italic for ponds/smaller features
+    // 9. Waterbody labels — Open Sans Italic (italic = water, cartographic convention)
     map.addLayer({
       id: 'waterbody-labels',
       type: 'symbol',
       source: 'wb',
       'source-layer': 'waterbodies-d9gs9a',
-      filter: ['!=', ['get', 'gnis_name'], null],
+      filter: ['has', 'gnis_name'],
       layout: {
         'text-field': ['get', 'gnis_name'],
         'text-font': ['Open Sans Italic', 'Arial Unicode MS Regular'],
@@ -701,8 +694,8 @@
       },
       paint: {
         'text-color': '#000000',
-        'text-halo-color': 'rgba(255,255,255,0.80)',
-        'text-halo-width': 1.5,
+        'text-halo-color': 'rgba(255,255,255,0.85)',
+        'text-halo-width': 1.8,
       },
     });
 
@@ -713,7 +706,7 @@
       'tog-dist':        ['dist-to-mouth'],
       'tog-waterbodies': ['waterbodies-fill', 'waterbodies-line', 'waterbody-labels'],
       'tog-streams':     ['streams'],
-      'tog-waterways':   ['waterways', 'waterway-labels'],
+      'tog-waterways':   ['waterways', 'river-labels', 'waterway-labels'],
       'tog-roads':       ['roads'],
       'tog-trails':      ['trails'],
       'tog-towns':       ['towns'],
