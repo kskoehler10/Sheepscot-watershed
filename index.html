@@ -561,7 +561,7 @@
         'text-font': ['Open Sans Bold Italic', 'Arial Unicode MS Regular'],
         'text-size': 13,
         'text-offset': [0, -1.0],
-        'text-max-angle': 45,
+        'text-max-angle': 30,
         'symbol-spacing': 250,
         'symbol-avoid-edges': false,
         'text-padding': 2,
@@ -587,7 +587,7 @@
         'text-font': ['Open Sans Italic', 'Arial Unicode MS Regular'],
         'text-size': 10,
         'text-offset': [0, -0.9],
-        'text-max-angle': 45,
+        'text-max-angle': 30,
         'symbol-spacing': 200,
         'symbol-avoid-edges': false,
         'text-padding': 2,
@@ -597,32 +597,6 @@
         'text-color': '#000000',
         'text-halo-color': 'rgba(255,255,255,0.88)',
         'text-halo-width': 1.6,
-      },
-    });
-
-    // 5c. Sheepscot River — force-always-on label so it's never dropped by collision
-    map.addLayer({
-      id: 'sheepscot-river-label',
-      type: 'symbol',
-      source: 'wwy',
-      'source-layer': 'waterways-3mgsb2',
-      filter: ['==', ['get', 'name'], 'Sheepscot River'],
-      layout: {
-        'symbol-placement': 'line',
-        'text-field': 'Sheepscot River',
-        'text-font': ['Open Sans Bold Italic', 'Arial Unicode MS Regular'],
-        'text-size': 14,
-        'text-offset': [0, -1.1],
-        'text-max-angle': 45,
-        'symbol-spacing': 180,
-        'symbol-avoid-edges': false,
-        'text-allow-overlap': true,
-        'text-ignore-placement': true,
-      },
-      paint: {
-        'text-color': '#000000',
-        'text-halo-color': 'rgba(255,255,255,0.92)',
-        'text-halo-width': 2.2,
       },
     });
 
@@ -724,7 +698,7 @@
       'tog-dist':        ['dist-to-mouth'],
       'tog-waterbodies': ['waterbodies-fill', 'waterbodies-line', 'waterbody-labels'],
       'tog-streams':     ['streams'],
-      'tog-waterways':   ['river-labels', 'waterway-labels', 'sheepscot-river-label'],
+      'tog-waterways':   ['river-labels', 'waterway-labels'],
       'tog-roads':       ['roads'],
       'tog-trails':      ['trails'],
       'tog-towns':       ['towns'],
