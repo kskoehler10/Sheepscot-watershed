@@ -117,6 +117,50 @@
   }
   .layer-label { color: #c4cfe0; line-height: 1.2; }
 
+  /* ── Opacity slider ─────────────────────────────────────────────── */
+  .opacity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .opacity-row .opacity-label {
+    font-size: 10px;
+    color: #5a7080;
+    white-space: nowrap;
+  }
+  .opacity-row input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .opacity-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: #3a80d2;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    cursor: pointer;
+  }
+  .opacity-row input[type="range"]::-moz-range-thumb {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: #3a80d2;
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+  .opacity-val {
+    font-size: 10px;
+    color: #7ec8e8;
+    min-width: 28px;
+    text-align: right;
+  }
+
   /* ── Legend ──────────────────────────────────────────────────────── */
   .legend-bar {
     height: 12px;
@@ -320,6 +364,12 @@
       <span>67</span>
       <span>90 km</span>
     </div>
+    <div class="opacity-row">
+      <span class="opacity-label">Opacity</span>
+      <input type="range" id="dist-opacity" min="0" max="100" value="50"
+        style="background: linear-gradient(to right, #3a80d2 50%, #2a3a52 50%);">
+      <span class="opacity-val" id="dist-opacity-val">50%</span>
+    </div>
     <p class="legend-note">
       Distance (km) a water droplet must travel downhill to reach the
       Sheepscot estuary. Low values (purple) near the coast; high
@@ -376,14 +426,14 @@
   //          The source-layer name equals the filename without .geojson (e.g. "streams").
   //          If a layer appears blank, open the tileset in Studio to confirm the layer name.
   const T = {
-    hillshade:   'kskoehler10.bqc58v',
+    hillshade:   'kskoehler10.4xvibj8b',
     distToMouth: 'kskoehler10.1xhqtcdn',
-    streams:     'kskoehler10.3f2v7r',
-    waterbodies: 'kskoehler10.d9gs9a',
+    streams:     'kskoehler10.28twz2y2',
+    waterbodies: 'kskoehler10.8nyuoes4',
     roads:       'kskoehler10.bnb7uq',
-    trails:      'kskoehler10.0epewg',
-    towns:       'kskoehler10.977j02',
-    waterways:   'kskoehler10.3mgsb2',
+    trails:      'kskoehler10.djkqfku3',
+    towns:       'kskoehler10.0dgwxxsj',
+    waterways:   'kskoehler10.18p5dx19',
   };
 
   // ── Map init ──────────────────────────────────────────────────────────────────
@@ -443,7 +493,7 @@
       type: 'raster',
       source: 'dtm',
       paint: {
-        'raster-opacity': 0.72,
+        'raster-opacity': 0.5,
         'raster-color-mix': [255, 0, 0, 0],   // R channel × 255 → 0-255
         'raster-color-range': [0, 255],
         'raster-color': [
@@ -705,6 +755,15 @@
     });
 
   }); // end map.on('load')
+
+  // ── Dist-to-mouth opacity slider ─────────────────────────────────────────────
+  document.getElementById('dist-opacity').addEventListener('input', (e) => {
+    const pct = parseInt(e.target.value, 10);
+    map.setPaintProperty('dist-to-mouth', 'raster-opacity', pct / 100);
+    document.getElementById('dist-opacity-val').textContent = pct + '%';
+    e.target.style.background =
+      `linear-gradient(to right, #3a80d2 ${pct}%, #2a3a52 ${pct}%)`;
+  });
 
   // ── About panel toggle ────────────────────────────────────────────────────────
   document.getElementById('about-toggle').addEventListener('click', () => {
