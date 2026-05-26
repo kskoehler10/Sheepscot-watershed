@@ -426,14 +426,17 @@
   //          The source-layer name equals the filename without .geojson (e.g. "streams").
   //          If a layer appears blank, open the tileset in Studio to confirm the layer name.
   const T = {
-    hillshade:   'kskoehler10.4xvibj8b',
-    distToMouth: 'kskoehler10.1xhqtcdn',
-    streams:     'kskoehler10.28twz2y2',
-    waterbodies: 'kskoehler10.8nyuoes4',
-    roads:       'kskoehler10.6yen86w3',
-    trails:      'kskoehler10.djkqfku3',
-    towns:       'kskoehler10.0dgwxxsj',
-    waterways:   'kskoehler10.18p5dx19',
+    hillshade:         'kskoehler10.4xvibj8b',
+    distToMouth:       'kskoehler10.1xhqtcdn',
+    streams:           'kskoehler10.28twz2y2',
+    waterbodies:       'kskoehler10.8nyuoes4',
+    roads:             'kskoehler10.6yen86w3',
+    trails:            'kskoehler10.djkqfku3',
+    towns:             'kskoehler10.0dgwxxsj',
+    waterways:         'kskoehler10.18p5dx19',
+    // Upload mapbox_ready/waterbody_centroids.geojson to Studio → Tilesets,
+    // then replace the placeholder below with the real tileset ID.
+    waterbodyCentroids: 'kskoehler10.REPLACE_wb_centroids',
   };
 
   // ── Map init ──────────────────────────────────────────────────────────────────
@@ -456,14 +459,15 @@
 
     // ── Sources ──────────────────────────────────────────────────────────────
 
-    map.addSource('hs',   { type: 'raster', url: 'mapbox://' + T.hillshade,   tileSize: 256 });
-    map.addSource('dtm',  { type: 'raster', url: 'mapbox://' + T.distToMouth, tileSize: 256 });
-    map.addSource('wb',   { type: 'vector', url: 'mapbox://' + T.waterbodies });
-    map.addSource('str',  { type: 'vector', url: 'mapbox://' + T.streams     });
-    map.addSource('wwy',  { type: 'vector', url: 'mapbox://' + T.waterways   });
-    map.addSource('rds',  { type: 'vector', url: 'mapbox://' + T.roads       });
-    map.addSource('trl',  { type: 'vector', url: 'mapbox://' + T.trails      });
-    map.addSource('twn',  { type: 'vector', url: 'mapbox://' + T.towns       });
+    map.addSource('hs',   { type: 'raster', url: 'mapbox://' + T.hillshade,         tileSize: 256 });
+    map.addSource('dtm',  { type: 'raster', url: 'mapbox://' + T.distToMouth,       tileSize: 256 });
+    map.addSource('wb',   { type: 'vector', url: 'mapbox://' + T.waterbodies   });
+    map.addSource('wbc',  { type: 'vector', url: 'mapbox://' + T.waterbodyCentroids });
+    map.addSource('str',  { type: 'vector', url: 'mapbox://' + T.streams       });
+    map.addSource('wwy',  { type: 'vector', url: 'mapbox://' + T.waterways     });
+    map.addSource('rds',  { type: 'vector', url: 'mapbox://' + T.roads         });
+    map.addSource('trl',  { type: 'vector', url: 'mapbox://' + T.trails        });
+    map.addSource('twn',  { type: 'vector', url: 'mapbox://' + T.towns         });
 
     // ── Layer stack (bottom → top) ────────────────────────────────────────────
 
@@ -542,19 +546,7 @@
       paint: { 'line-color': '#3a6e9a', 'line-width': 0.6, 'line-opacity': 1.0 },
     });
 
-    // 5. Named waterways (OSM)
-    map.addLayer({
-      id: 'waterways',
-      type: 'line',
-      source: 'wwy',
-      'source-layer': 'waterways-3mgsb2',
-      layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: {
-        'line-color': '#1e4870',
-        'line-width': ['match', ['get', 'waterway'], 'river', 2.5, 1.2],
-        'line-opacity': 1.0,
-      },
-    });
+    // 5. Named waterways (OSM) — source kept for labels only; no line layer
 
     // 5a. River name labels — Open Sans Bold Italic (large named water bodies)
     map.addLayer({
@@ -570,7 +562,7 @@
         'text-size': 13,
         'text-offset': [0, -1.0],
         'text-max-angle': 30,
-        'symbol-spacing': 300,
+        'symbol-spacing': 600,
         'text-allow-overlap': false,
       },
       paint: {
@@ -594,7 +586,7 @@
         'text-size': 10,
         'text-offset': [0, -0.9],
         'text-max-angle': 30,
-        'symbol-spacing': 250,
+        'symbol-spacing': 450,
         'text-allow-overlap': false,
       },
       paint: {
@@ -672,12 +664,14 @@
       },
     });
 
-    // 9. Waterbody labels — Open Sans Italic (italic = water, cartographic convention)
+    // 9. Waterbody labels — one centroid point per named lake/pond, no duplicates.
+    //    Source: waterbody_centroids.geojson (41 points, one per named NHD feature).
+    //    Upload that file to Studio → Tilesets, then update T.waterbodyCentroids above.
     map.addLayer({
       id: 'waterbody-labels',
       type: 'symbol',
-      source: 'wb',
-      'source-layer': 'waterbodies-d9gs9a',
+      source: 'wbc',
+      'source-layer': 'REPLACE_waterbody_centroids_source_layer',
       filter: ['has', 'gnis_name'],
       layout: {
         'text-field': ['get', 'gnis_name'],
@@ -700,7 +694,7 @@
       'tog-dist':        ['dist-to-mouth'],
       'tog-waterbodies': ['waterbodies-fill', 'waterbodies-line', 'waterbody-labels'],
       'tog-streams':     ['streams'],
-      'tog-waterways':   ['waterways', 'river-labels', 'waterway-labels'],
+      'tog-waterways':   ['river-labels', 'waterway-labels'],
       'tog-roads':       ['roads'],
       'tog-trails':      ['trails'],
       'tog-towns':       ['towns'],
