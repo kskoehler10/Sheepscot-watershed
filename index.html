@@ -439,15 +439,9 @@
   // ── Map init ──────────────────────────────────────────────────────────────────
   const map = new mapboxgl.Map({
     container: 'map',
-    style: {
-      version: 8,
-      glyphs: 'mapbox://fonts/mapbox/{fontstack}/{range}',
-      sprite: 'mapbox://sprites/mapbox/dark-v11',
-      sources: {},
-      layers: [
-        { id: 'bg', type: 'background', paint: { 'background-color': '#141e2e' } }
-      ],
-    },
+    // Light-v11 provides greyscale context outside the watershed footprint
+    // and ensures Mapbox's font/glyph infrastructure loads correctly.
+    style: 'mapbox://styles/mapbox/light-v11',
     center: [-69.62, 44.18],
     zoom: 9.5,
     minZoom: 7,
