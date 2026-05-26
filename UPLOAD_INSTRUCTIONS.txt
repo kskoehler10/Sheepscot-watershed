@@ -1,0 +1,82 @@
+SHEEPSCOT WATERSHED — MAPBOX UPLOAD INSTRUCTIONS
+=================================================
+
+Your prepared files are in: sheepscot\mapbox_ready\
+
+STEP 1: UPLOAD VECTORS (drag-and-drop in Studio — takes ~30 sec each)
+----------------------------------------------------------------------
+1. Go to https://studio.mapbox.com → click "Tilesets" → "+ New tileset"
+2. Drag in each file and name it as shown:
+
+   File                  →  Suggested tileset name
+   ─────────────────────────────────────────────────
+   streams.geojson       →  streams
+   waterbodies.geojson   →  waterbodies
+   roads.geojson         →  roads
+   trails.geojson        →  trails
+   towns.geojson         →  towns
+   waterways.geojson     →  waterways
+
+3. After each upload, click the tileset → the ID shown is  kskoehler10.XXXXXXXX
+   Copy that ID and paste it into index.html in the T = { ... } block at the top.
+
+STEP 2: UPLOAD RASTERS (two options)
+----------------------------------------------------------------------
+OPTION A — Studio drag-and-drop (easiest):
+   Same as above — drag hillshade_3857.tif and dist_to_mouth_3857.tif
+   into "New tileset". Processing takes 10–30 min on Mapbox's servers.
+   Note: hillshade_3857.tif is 89 MB so upload may take a few minutes.
+
+OPTION B — Mapbox Tilesets CLI (faster, gives custom IDs):
+   pip install mapbox-tilesets
+
+   # set your secret token (needs tilesets:write scope — create one at account.mapbox.com)
+   set MAPBOX_ACCESS_TOKEN=sk.eyJ1...YOUR_SECRET_TOKEN...
+
+   mts-upload-raster kskoehler10.hillshade "Sheepscot Hillshade" ^
+       c:\Users\kskoe\OneDrive\Desktop\sheepscot\mapbox_ready\hillshade_3857.tif
+
+   mts-upload-raster kskoehler10.dist-to-mouth "Sheepscot Flow Distance" ^
+       c:\Users\kskoe\OneDrive\Desktop\sheepscot\mapbox_ready\dist_to_mouth_3857.tif
+
+   (Watch processing status at studio.mapbox.com → Tilesets)
+
+STEP 3: UPDATE index.html WITH YOUR TILESET IDs
+----------------------------------------------------------------------
+Open index.html and find the T = { ... } block near the top. Replace each
+"kskoehler10.REPLACE_xxx" with the real tileset ID from Studio, e.g.:
+
+   streams: 'kskoehler10.clx1a2b3c',   ← example, your ID will differ
+
+STEP 4: DEPLOY TO GITHUB PAGES
+----------------------------------------------------------------------
+(Run these commands in the sheepscot-map folder)
+
+   git init
+   git add index.html
+   git commit -m "Add Sheepscot watershed map"
+   git branch -M main
+
+Then:
+1. Create a new repo at https://github.com/new
+   Name: sheepscot-watershed  (or any name you like)
+   Set to PUBLIC (required for free GitHub Pages)
+   Do NOT initialize with README
+
+2. Push:
+   git remote add origin https://github.com/kskoehler10/sheepscot-watershed.git
+   git push -u origin main
+
+3. In the GitHub repo: Settings → Pages → Source: "Deploy from branch" → main / (root) → Save
+
+Your map will be live at:
+   https://kskoehler10.github.io/sheepscot-watershed/
+
+(Takes 1-2 minutes to deploy the first time)
+
+DIST_TO_MOUTH DECODE KEY
+----------------------------------------------------------------------
+pixel value 0   = nodata (outside watershed, rendered transparent)
+pixel value 1   = ~0 m from mouth
+pixel value 255 = ~89,690 m from mouth
+formula:        meters = (pixel - 1) / 254 × 89689.86
