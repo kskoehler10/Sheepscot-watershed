@@ -296,12 +296,88 @@
     color: #fff;
   }
 
-  /* ── Legend subtext (always visible, above color bar) ───────────── */
-  .legend-sub {
+  /* ── Legend description ──────────────────────────────────────────── */
+  .legend-note {
     font-size: 10px;
     color: #6a8090;
     margin: 3px 0 8px;
     line-height: 1.4;
+  }
+  .legend-sub { display: none; }
+
+  /* ── About button + card (desktop only) ──────────────────────────── */
+  #about-btn {
+    position: absolute;
+    bottom: 40px;
+    left: 12px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(14, 20, 34, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #8aaabb;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: background 0.15s, color 0.15s;
+  }
+  #about-btn:hover { background: rgba(58,128,210,0.85); color: #fff; }
+
+  #about-card {
+    position: absolute;
+    bottom: 72px;
+    left: 12px;
+    width: 290px;
+    background: rgba(14, 20, 34, 0.96);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 13px 15px;
+    z-index: 10;
+    display: none;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+    color: #8ea8c0;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  #about-card.open { display: block; }
+  #about-card p { margin-bottom: 8px; }
+  #about-card p:last-child { margin-bottom: 0; }
+  #about-card code {
+    background: rgba(255,255,255,0.07);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    color: #b0d0f0;
+  }
+  #about-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  #about-card-header span {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #5a7080;
+  }
+  #about-card-close {
+    background: none;
+    border: none;
+    color: #6a8aa8;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
   }
 
   /* ── Floating legend button (mobile only) ───────────────────────── */
@@ -370,8 +446,11 @@
     }
     .mob-layers-grid .layer-row { padding: 3px 0; }
 
-    /* Hide long description on mobile (sub-heading above bar is enough) */
+    /* On mobile: swap full description for the short version */
     .legend-note { display: none; }
+    .legend-sub  { display: block; }
+    /* Hide desktop about button/card on mobile */
+    #about-btn, #about-card { display: none !important; }
 
     /* Compact 2D/3D buttons */
     .view-btn {
@@ -504,6 +583,7 @@
 
   <div class="panel">
     <div class="panel-heading">Flow Distance to Mouth</div>
+    <p class="legend-note">Distance a water droplet must travel downhill to reach the mouth of the Sheepscot River. Low values (purple) near the coast; high values (yellow) at headwaters.</p>
     <p class="legend-sub">Distance a water droplet must travel downhill to reach the mouth of the Sheepscot River</p>
     <div class="legend-bar"></div>
     <div class="legend-ticks">
@@ -519,43 +599,39 @@
         style="background: linear-gradient(to right, #3a80d2 72%, #2a3a52 72%);">
       <span class="opacity-val" id="dist-opacity-val">72%</span>
     </div>
-    <p class="legend-note">
-      Distance (km) a water droplet must travel downhill to reach the
-      Sheepscot estuary. Low values (purple) near the coast; high
-      values (yellow) at headwaters.
-    </p>
   </div><!-- /legend panel -->
 
-  <div class="panel mob-about">
-    <div class="about-header" id="about-toggle">
-      <span class="panel-heading">About this project</span>
-      <span class="about-caret" id="about-caret">&#9658;</span>
-    </div>
-    <div class="about-body" id="about-body">
-      <p>
-        The flow-distance raster was derived from a 10&#8202;m resolution
-        LiDAR-based DEM using GRASS GIS <code>r.watershed</code>. 
-        Each cell's value is the cumulative least-cost flow 
-        distance that a raindrop falling on that cell has to travel 
-        downhill to reach the mouth of the Sheepscot River at the 
-        Route 1 bridge in Wiscasset, ME.
-      </p>
-      <p>
-        The stream network was extracted with <code>r.stream.extract</code>
-        and ordered using the Strahler system: headwater channels are
-        order&nbsp;1; the Sheepscot River mainstem reaches order&nbsp;8.
-        Line widths scale with order, reflecting the accumulation of
-        upstream drainage area.
-      </p>
-      <p>
-        Waterbodies are from the NHD (National Hydrography Dataset,
-        HUC&nbsp;01050003). Roads, trails, and named waterways are from
-        OpenStreetMap.
-      </p>
-    </div>
-  </div><!-- /about panel -->
 
 </div><!-- /sidebar -->
+
+<!-- Desktop info button + about card -->
+<button id="about-btn" aria-label="About this project">&#x2139;</button>
+
+<div id="about-card">
+  <div id="about-card-header">
+    <span>About this project</span>
+    <button id="about-card-close" aria-label="Close">&#x2715;</button>
+  </div>
+  <p>
+    The flow-distance raster was derived from a 10&#8202;m resolution
+    LiDAR-based DEM using GRASS GIS <code>r.watershed</code>.
+    Each cell's value is the cumulative least-cost flow distance that a
+    raindrop falling on that cell has to travel downhill to reach the mouth
+    of the Sheepscot River at the Route 1 bridge in Wiscasset, ME.
+  </p>
+  <p>
+    The stream network was extracted with <code>r.stream.extract</code>
+    and ordered using the Strahler system: headwater channels are
+    order&nbsp;1; the Sheepscot River mainstem reaches order&nbsp;8.
+    Line widths scale with order, reflecting the accumulation of upstream
+    drainage area.
+  </p>
+  <p>
+    Waterbodies are from the NHD (National Hydrography Dataset,
+    HUC&nbsp;01050003). Roads, trails, and named waterways are from
+    OpenStreetMap.
+  </p>
+</div>
 
 <button id="mob-btn" aria-label="Open layers and legend">
   <svg width="15" height="13" viewBox="0 0 15 13" fill="none" style="flex-shrink:0">
@@ -1014,13 +1090,12 @@
       `linear-gradient(to right, #3a80d2 ${pct}%, #2a3a52 ${pct}%)`;
   });
 
-  // ── About panel toggle ────────────────────────────────────────────────────────
-  document.getElementById('about-toggle').addEventListener('click', () => {
-    const body  = document.getElementById('about-body');
-    const caret = document.getElementById('about-caret');
-    const open  = body.style.display === 'block';
-    body.style.display = open ? 'none' : 'block';
-    caret.classList.toggle('open', !open);
+  // ── About card (desktop floating button) ─────────────────────────────────────
+  document.getElementById('about-btn').addEventListener('click', () => {
+    document.getElementById('about-card').classList.toggle('open');
+  });
+  document.getElementById('about-card-close').addEventListener('click', () => {
+    document.getElementById('about-card').classList.remove('open');
   });
 
   // ── Mobile legend panel ───────────────────────────────────────────────────────
