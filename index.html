@@ -702,11 +702,6 @@
   // ── Add layers after style loads ──────────────────────────────────────────────
   map.on('load', () => {
 
-    // Hide every symbol layer from the light-v11 base style (road labels,
-    // POI labels, place names, etc.) — we supply our own labels only.
-    map.getStyle().layers
-      .filter(l => l.type === 'symbol')
-      .forEach(l => map.setLayoutProperty(l.id, 'visibility', 'none'));
 
     // ── Sources ──────────────────────────────────────────────────────────────
 
