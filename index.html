@@ -385,11 +385,11 @@
     <div class="about-body" id="about-body">
       <p>
         The flow-distance raster was derived from a 10&#8202;m resolution
-        LiDAR-based DEM using GRASS GIS <code>r.watershed</code>. After
-        filling sinks in the DEM, D8 flow directions trace the least-cost
-        downhill path from every pixel to the watershed outlet at the
-        Sheepscot estuary near Wiscasset, ME. Each cell's value is the
-        cumulative overland-flow distance to that outlet.
+        LiDAR-based DEM using GRASS GIS <code>r.watershed</code>. 
+        Each cell's value is the cumulative least-cost flow 
+        distance that a raindrop falling on that cell has to travel 
+        downhill to reach the mouth of the Sheepscot River at the 
+        Route 1 bridge in Wiscasset, ME.
       </p>
       <p>
         The stream network was extracted with <code>r.stream.extract</code>
@@ -401,8 +401,7 @@
       <p>
         Waterbodies are from the NHD (National Hydrography Dataset,
         HUC&nbsp;01050003). Roads, trails, and named waterways are from
-        OpenStreetMap. The viridis color ramp on the flow-distance layer
-        is applied client-side via the Mapbox GL JS
+        OpenStreetMap.
         <code>raster-color</code> paint property.
       </p>
     </div>
@@ -449,6 +448,8 @@
     zoom: 9.5,
     minZoom: 7,
     maxZoom: 16,
+    pitch: 45,
+    bearing: -10,
   });
 
   map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'bottom-right');
@@ -458,6 +459,25 @@
   map.on('load', () => {
 
     // ── Sources ──────────────────────────────────────────────────────────────
+
+    // Terrain DEM — Mapbox global DEM drives the 3D geometry
+    map.addSource('mapbox-dem', {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+    });
+    map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+    // Sky layer — atmospheric gradient above the horizon when pitched
+    map.addLayer({
+      id: 'sky',
+      type: 'sky',
+      paint: {
+        'sky-type': 'atmosphere',
+        'sky-atmosphere-sun': [0, 90],
+        'sky-atmosphere-sun-intensity': 15,
+      },
+    });
 
     map.addSource('hs',   { type: 'raster', url: 'mapbox://' + T.hillshade,         tileSize: 256 });
     map.addSource('dtm',  { type: 'raster', url: 'mapbox://' + T.distToMouth,       tileSize: 256 });
