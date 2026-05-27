@@ -600,6 +600,33 @@
       },
     });
 
+    // 5c. Sheepscot River — highest priority: renders over other labels but still
+    //     respects text-max-angle so words don't bend unreadably on tight curves.
+    map.addLayer({
+      id: 'sheepscot-river-label',
+      type: 'symbol',
+      source: 'wwy',
+      'source-layer': 'waterways-3mgsb2',
+      filter: ['==', ['get', 'name'], 'Sheepscot River'],
+      layout: {
+        'symbol-placement': 'line',
+        'text-field': 'Sheepscot River',
+        'text-font': ['Open Sans Bold Italic', 'Arial Unicode MS Regular'],
+        'text-size': 14,
+        'text-offset': [0, -1.1],
+        'text-max-angle': 30,
+        'symbol-spacing': 350,
+        'symbol-avoid-edges': false,
+        'text-allow-overlap': true,
+        'text-ignore-placement': false,
+      },
+      paint: {
+        'text-color': '#000000',
+        'text-halo-color': 'rgba(255,255,255,0.92)',
+        'text-halo-width': 2.2,
+      },
+    });
+
     // 6. Roads — dark brown, full opacity
     map.addLayer({
       id: 'roads',
@@ -698,7 +725,7 @@
       'tog-dist':        ['dist-to-mouth'],
       'tog-waterbodies': ['waterbodies-fill', 'waterbodies-line', 'waterbody-labels'],
       'tog-streams':     ['streams'],
-      'tog-waterways':   ['river-labels', 'waterway-labels'],
+      'tog-waterways':   ['river-labels', 'waterway-labels', 'sheepscot-river-label'],
       'tog-roads':       ['roads'],
       'tog-trails':      ['trails'],
       'tog-towns':       ['towns'],
