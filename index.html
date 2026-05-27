@@ -296,6 +296,15 @@
     color: #fff;
   }
 
+  /* ── Short legend note (mobile only) ────────────────────────────── */
+  .legend-short-note {
+    display: none;
+    font-size: 10px;
+    color: #4a6070;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
   /* ── Floating legend button (mobile only) ───────────────────────── */
   #mob-btn { display: none; }
   #mob-panel-header { display: none; }
@@ -362,8 +371,15 @@
     }
     .mob-layers-grid .layer-row { padding: 3px 0; }
 
-    /* Hide description text to save space */
+    /* Hide full description, show 1-line version */
     .legend-note { display: none; }
+    .legend-short-note { display: block; }
+
+    /* Compact 2D/3D buttons */
+    .view-btn {
+      padding: 4px 0;
+      font-size: 11px;
+    }
 
     /* Floating pill button */
     #mob-btn {
@@ -509,6 +525,7 @@
       Sheepscot estuary. Low values (purple) near the coast; high
       values (yellow) at headwaters.
     </p>
+    <p class="legend-short-note">Purple = near mouth &rarr; yellow = headwaters (0&ndash;90 km)</p>
   </div><!-- /legend panel -->
 
   <div class="panel mob-about">
