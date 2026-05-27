@@ -702,6 +702,20 @@
   // ── Add layers after style loads ──────────────────────────────────────────────
   map.on('load', () => {
 
+    // Mapbox symbols render in a separate pass and always appear above rasters,
+    // so layer order alone can't hide them inside the watershed. Instead, hide
+    // the label types that clutter the watershed (roads, POIs, transit, waterways)
+    // while keeping settlement/place labels that give useful background context.
+    const HIDE_LABELS = [
+      'road-label', 'road-number-shield', 'road-exit-shield',
+      'poi-label', 'transit-stop-label', 'airport-label',
+      'waterway-label', 'water-line-label', 'water-point-label',
+      'natural-line-label', 'natural-point-label',
+    ];
+    map.getStyle().layers
+      .filter(l => l.type === 'symbol' && HIDE_LABELS.some(p => l.id.includes(p)))
+      .forEach(l => map.setLayoutProperty(l.id, 'visibility', 'none'));
+
 
     // ── Sources ──────────────────────────────────────────────────────────────
 
