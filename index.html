@@ -296,12 +296,11 @@
     color: #fff;
   }
 
-  /* ── Short legend note (mobile only) ────────────────────────────── */
-  .legend-short-note {
-    display: none;
+  /* ── Legend subtext (always visible, above color bar) ───────────── */
+  .legend-sub {
     font-size: 10px;
-    color: #4a6070;
-    margin-top: 6px;
+    color: #6a8090;
+    margin: 3px 0 8px;
     line-height: 1.4;
   }
 
@@ -371,9 +370,8 @@
     }
     .mob-layers-grid .layer-row { padding: 3px 0; }
 
-    /* Hide full description, show 1-line version */
+    /* Hide long description on mobile (sub-heading above bar is enough) */
     .legend-note { display: none; }
-    .legend-short-note { display: block; }
 
     /* Compact 2D/3D buttons */
     .view-btn {
@@ -506,6 +504,7 @@
 
   <div class="panel">
     <div class="panel-heading">Flow Distance to Mouth</div>
+    <p class="legend-sub">Distance a water droplet must travel downhill to reach the mouth of the Sheepscot River</p>
     <div class="legend-bar"></div>
     <div class="legend-ticks">
       <span>0 km</span>
@@ -525,7 +524,6 @@
       Sheepscot estuary. Low values (purple) near the coast; high
       values (yellow) at headwaters.
     </p>
-    <p class="legend-short-note">Purple = near mouth &rarr; yellow = headwaters (0&ndash;90 km)</p>
   </div><!-- /legend panel -->
 
   <div class="panel mob-about">
