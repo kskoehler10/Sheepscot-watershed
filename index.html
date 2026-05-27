@@ -296,15 +296,54 @@
     color: #fff;
   }
 
-  /* ── Mobile ──────────────────────────────────────────────────────── */
+  /* ── Mobile collapse handle ─────────────────────────────────────── */
+  #mobile-handle {
+    display: none;
+  }
+
   @media (max-width: 620px) {
     #sidebar {
       top: auto;
-      bottom: 12px;
-      right: 8px;
-      left: 8px;
-      width: auto;
-      max-height: 46vh;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      width: 100%;
+      border-radius: 14px 14px 0 0;
+      max-height: 60px;        /* collapsed: just title strip */
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    #sidebar.mob-open {
+      max-height: 70vh;
+    }
+    #mobile-handle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 0 0;
+      cursor: pointer;
+    }
+    #mobile-handle .drag-bar {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.25);
+    }
+    #title-section {
+      cursor: pointer;
+      user-select: none;
+    }
+    .mob-chevron {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 10px;
+      color: #5a7080;
+      transition: transform 0.25s;
+      vertical-align: middle;
+    }
+    #sidebar.mob-open .mob-chevron {
+      transform: rotate(180deg);
     }
   }
 </style>
@@ -315,8 +354,10 @@
 
 <div id="sidebar">
 
+  <div id="mobile-handle"><div class="drag-bar"></div></div>
+
   <div id="title-section">
-    <h1>Sheepscot Watershed</h1>
+    <h1>Sheepscot Watershed<span class="mob-chevron">&#9650;</span></h1>
     <p>Lincoln &amp; Kennebec Counties, Maine &bull; LiDAR hydrology</p>
   </div>
 
@@ -898,6 +939,13 @@
     body.style.display = open ? 'none' : 'block';
     caret.classList.toggle('open', !open);
   });
+
+  // ── Mobile sidebar collapse ───────────────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('mob-open');
+  }
+  document.getElementById('mobile-handle').addEventListener('click', toggleSidebar);
+  document.getElementById('title-section').addEventListener('click', toggleSidebar);
 
 </script>
 </body>
