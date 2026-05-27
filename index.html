@@ -296,55 +296,109 @@
     color: #fff;
   }
 
-  /* ── Mobile collapse handle ─────────────────────────────────────── */
-  #mobile-handle {
-    display: none;
-  }
+  /* ── Floating legend button (mobile only) ───────────────────────── */
+  #mob-btn { display: none; }
+  #mob-panel-header { display: none; }
+  #mobile-handle { display: none; }
 
   @media (max-width: 620px) {
+    /* Sidebar becomes a hidden bottom sheet */
     #sidebar {
       top: auto;
       bottom: 0;
       right: 0;
       left: 0;
       width: 100%;
-      border-radius: 14px 14px 0 0;
-      max-height: 60px;        /* collapsed: just title strip */
+      border-radius: 16px 16px 0 0;
+      max-height: 48vh;
+      transform: translateY(100%);
       overflow: hidden;
-      transition: max-height 0.3s ease;
+      transition: transform 0.28s ease;
     }
     #sidebar.mob-open {
-      max-height: 70vh;
+      transform: translateY(0);
       overflow-y: auto;
     }
-    #mobile-handle {
+    /* Hide desktop-only chrome on mobile */
+    #title-section,
+    .mob-about { display: none; }
+
+    /* Sticky header inside the panel */
+    #mob-panel-header {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      gap: 2px;
-      padding: 6px 0 0;
+      padding: 11px 16px 9px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      background: rgba(14, 20, 34, 0.98);
+      z-index: 2;
+    }
+    #mob-panel-header span {
+      font-size: 13px;
+      font-weight: 700;
+      color: #dde4ee;
+      letter-spacing: -0.01em;
+    }
+    #mob-close-btn {
+      background: none;
+      border: none;
+      color: #6a8aa8;
+      font-size: 18px;
+      line-height: 1;
       cursor: pointer;
+      padding: 2px 4px;
     }
-    #mobile-handle .drag-bar {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.25);
+
+    /* Tighter panel padding */
+    .panel { padding: 9px 14px; }
+
+    /* 2-column layer grid */
+    .mob-layers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 6px;
     }
-    #title-section {
+    .mob-layers-grid .layer-row { padding: 3px 0; }
+
+    /* Hide description text to save space */
+    .legend-note { display: none; }
+
+    /* Floating pill button */
+    #mob-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(14, 20, 34, 0.93);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 24px;
+      color: #dde4ee;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
       cursor: pointer;
-      user-select: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.55);
+      z-index: 10;
+      white-space: nowrap;
+      transition: opacity 0.18s;
     }
-    .mob-chevron {
-      display: inline-block;
-      margin-left: 6px;
-      font-size: 10px;
-      color: #5a7080;
-      transition: transform 0.25s;
-      vertical-align: middle;
+    #mob-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
-    #sidebar.mob-open .mob-chevron {
-      transform: rotate(180deg);
+
+    /* Push nav controls above the pill button */
+    .mapboxgl-ctrl-bottom-right { bottom: 70px; }
+    /* Move scale bar to top so panel doesn't cover it */
+    .mapboxgl-ctrl-bottom-left {
+      bottom: auto;
+      top: 8px;
     }
   }
 </style>
@@ -355,10 +409,13 @@
 
 <div id="sidebar">
 
-  <div id="mobile-handle"><div class="drag-bar"></div></div>
+  <div id="mob-panel-header">
+    <span>Layers &amp; Legend</span>
+    <button id="mob-close-btn" aria-label="Close">&#x2715;</button>
+  </div>
 
   <div id="title-section">
-    <h1>Sheepscot Watershed<span class="mob-chevron">&#9650;</span></h1>
+    <h1>Sheepscot Watershed</h1>
     <p>Lincoln &amp; Kennebec Counties, Maine &bull; LiDAR hydrology</p>
   </div>
 
@@ -372,61 +429,63 @@
 
   <div class="panel">
     <div class="panel-heading">Layers</div>
+    <div class="mob-layers-grid">
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-hillshade" checked>
-      <span class="chk-box"></span>
-      <span class="layer-label">Hillshade</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-hillshade" checked>
+        <span class="chk-box"></span>
+        <span class="layer-label">Hillshade</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-dist" checked>
-      <span class="chk-box"></span>
-      <span class="layer-label">Flow Distance to Mouth</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-dist" checked>
+        <span class="chk-box"></span>
+        <span class="layer-label">Flow Distance</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-waterbodies" checked>
-      <span class="chk-box"></span>
-      <span class="layer-swatch fill-swatch" style="background:#2a5f8f;"></span>
-      <span class="layer-label">Lakes &amp; Ponds (NHD)</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-waterbodies" checked>
+        <span class="chk-box"></span>
+        <span class="layer-swatch fill-swatch" style="background:#2a5f8f;"></span>
+        <span class="layer-label">Lakes &amp; Ponds</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-streams" checked>
-      <span class="chk-box"></span>
-      <span class="layer-swatch" style="background:#6ab0e8;"></span>
-      <span class="layer-label">Stream Network (Strahler)</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-streams" checked>
+        <span class="chk-box"></span>
+        <span class="layer-swatch" style="background:#6ab0e8;"></span>
+        <span class="layer-label">Streams</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-waterways" checked>
-      <span class="chk-box"></span>
-      <span class="layer-swatch" style="background:#a0c8e8;"></span>
-      <span class="layer-label">Named Waterways (OSM)</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-waterways" checked>
+        <span class="chk-box"></span>
+        <span class="layer-swatch" style="background:#a0c8e8;"></span>
+        <span class="layer-label">Waterway Labels</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-roads" checked>
-      <span class="chk-box"></span>
-      <span class="layer-swatch" style="background:#a0a0a0;"></span>
-      <span class="layer-label">Roads</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-roads" checked>
+        <span class="chk-box"></span>
+        <span class="layer-swatch" style="background:#a0a0a0;"></span>
+        <span class="layer-label">Roads</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-trails" checked>
-      <span class="chk-box"></span>
-      <span class="layer-swatch" style="background:#c8a96e; border-top: 1px dashed #c8a96e; height:0; margin-top:1px;"></span>
-      <span class="layer-label">Trails</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-trails" checked>
+        <span class="chk-box"></span>
+        <span class="layer-swatch" style="background:#c8a96e;"></span>
+        <span class="layer-label">Trails</span>
+      </label>
 
-    <label class="layer-row">
-      <input type="checkbox" id="tog-towns" checked>
-      <span class="chk-box"></span>
-      <span style="width:22px; text-align:center; font-size:11px; color:#f0e6d3; flex-shrink:0;">A</span>
-      <span class="layer-label">Town Names</span>
-    </label>
+      <label class="layer-row">
+        <input type="checkbox" id="tog-towns" checked>
+        <span class="chk-box"></span>
+        <span style="width:22px; text-align:center; font-size:11px; color:#f0e6d3; flex-shrink:0;">A</span>
+        <span class="layer-label">Towns</span>
+      </label>
 
+    </div><!-- /mob-layers-grid -->
   </div><!-- /layers panel -->
 
   <div class="panel">
@@ -452,7 +511,7 @@
     </p>
   </div><!-- /legend panel -->
 
-  <div class="panel">
+  <div class="panel mob-about">
     <div class="about-header" id="about-toggle">
       <span class="panel-heading">About this project</span>
       <span class="about-caret" id="about-caret">&#9658;</span>
@@ -482,6 +541,15 @@
   </div><!-- /about panel -->
 
 </div><!-- /sidebar -->
+
+<button id="mob-btn" aria-label="Open layers and legend">
+  <svg width="15" height="13" viewBox="0 0 15 13" fill="none" style="flex-shrink:0">
+    <rect y="0"  width="15" height="2.2" rx="1.1" fill="currentColor"/>
+    <rect y="5.4" width="15" height="2.2" rx="1.1" fill="currentColor"/>
+    <rect y="10.8" width="15" height="2.2" rx="1.1" fill="currentColor"/>
+  </svg>
+  Layers &amp; Legend
+</button>
 
 <script>
   mapboxgl.accessToken =
@@ -940,12 +1008,19 @@
     caret.classList.toggle('open', !open);
   });
 
-  // ── Mobile sidebar collapse ───────────────────────────────────────────────────
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('mob-open');
-  }
-  document.getElementById('mobile-handle').addEventListener('click', toggleSidebar);
-  document.getElementById('title-section').addEventListener('click', toggleSidebar);
+  // ── Mobile legend panel ───────────────────────────────────────────────────────
+  const mobBtn   = document.getElementById('mob-btn');
+  const mobClose = document.getElementById('mob-close-btn');
+  const sidebar  = document.getElementById('sidebar');
+
+  mobBtn.addEventListener('click', () => {
+    sidebar.classList.add('mob-open');
+    mobBtn.classList.add('hidden');
+  });
+  mobClose.addEventListener('click', () => {
+    sidebar.classList.remove('mob-open');
+    mobBtn.classList.remove('hidden');
+  });
 
 </script>
 </body>
