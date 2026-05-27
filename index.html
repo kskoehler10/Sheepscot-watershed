@@ -453,8 +453,20 @@
     /* Tighter heading → description gap, bigger description → bar gap */
     .legend-sub  { display: block; margin-top: 1px; margin-bottom: 12px; }
     .legend-sub ~ .legend-bar { margin-top: 0; }
-    /* Hide desktop about button/card on mobile */
-    #about-btn, #about-card { display: none !important; }
+    /* About button on mobile: bottom-left, same row as the pill button */
+    #about-btn {
+      bottom: 22px;
+      left: 12px;
+    }
+    /* About card on mobile: full width, opens upward from button */
+    #about-card {
+      bottom: 66px;
+      left: 12px;
+      right: 12px;
+      width: auto;
+      max-height: 55vh;
+      overflow-y: auto;
+    }
 
     /* Compact 2D/3D buttons */
     .view-btn {
